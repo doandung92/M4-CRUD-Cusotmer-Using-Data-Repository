@@ -17,6 +17,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.codegym.service.customer.ICustomerService;
 import com.codegym.service.province.IProvinceService;
 
+import java.util.Optional;
+
 @Controller
 @RequestMapping("/customers")
 public class CustomerController {
@@ -32,9 +34,11 @@ public class CustomerController {
     }
 
     @GetMapping
-    public String home(Model model, Pageable pageable){
+    public String home(Model model, Optional<String> search, Pageable pageable){
         pageable = new PageRequest(pageable.getPageNumber(),3,Direction.ASC,"name","id" );
-        Page<Customer> customers = customerService.findAll(pageable);
+        String searchValue = search.orElse("");
+        model.addAttribute("search",searchValue);
+        Page<Customer> customers = customerService.findAllByNameContaining(searchValue, pageable);
         model.addAttribute("customers",customers);
         return "list";
     }
